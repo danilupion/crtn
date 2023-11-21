@@ -1,10 +1,14 @@
 {
-  "name": "crtn",
+  "name": "compact-relative-time-notation",
   "version": "1.0.0",
   "private": false,
   "author": {
     "name": "Dani Lupión",
     "email": "danilupion@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danilupion/compact-relative-time-notation"
   },
   "license": "Apache-2.0",
   "type": "module",
