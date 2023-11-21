@@ -4,35 +4,41 @@ import { AbsoluteTimeUnit, AdjustmentType, DeltaTimeUnit, adjust, parse } from '
 
 describe('timeAdjustment', () => {
   describe('parse', () => {
-    describe('adjutsment type', () => {
+    describe('adjustment type', () => {
       it('should support increases', () => {
         const parsed = parse('+1h');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Increment,
-          values: {
-            [DeltaTimeUnit.Hour]: 1,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Increment,
+            values: {
+              [DeltaTimeUnit.Hour]: 1,
+            },
           },
-        });
+        ]);
       });
 
       it('should support decreases', () => {
         const parsed = parse('-2m');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Decrement,
-          values: {
-            [DeltaTimeUnit.Minute]: 2,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Decrement,
+            values: {
+              [DeltaTimeUnit.Minute]: 2,
+            },
           },
-        });
+        ]);
       });
 
       it('should support absolute set', () => {
         const parsed = parse('@20d');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Set,
-          values: {
-            [AbsoluteTimeUnit.Day]: 20,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Set,
+            values: {
+              [AbsoluteTimeUnit.Day]: 20,
+            },
           },
-        });
+        ]);
       });
 
       it('should not support anything that is not increase, decrease or set', () => {
@@ -44,72 +50,105 @@ describe('timeAdjustment', () => {
     describe('time units', () => {
       it('should support seconds', () => {
         const parsed = parse('+10s');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Increment,
-          values: {
-            [DeltaTimeUnit.Second]: 10,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Increment,
+            values: {
+              [DeltaTimeUnit.Second]: 10,
+            },
           },
-        });
+        ]);
       });
 
       it('should support minutes', () => {
         const parsed = parse('-5m');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Decrement,
-          values: {
-            [DeltaTimeUnit.Minute]: 5,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Decrement,
+            values: {
+              [DeltaTimeUnit.Minute]: 5,
+            },
           },
-        });
+        ]);
       });
 
       it('should support hours', () => {
         const parsed = parse('@10h');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Set,
-          values: {
-            [AbsoluteTimeUnit.Hour]: 10,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Set,
+            values: {
+              [AbsoluteTimeUnit.Hour]: 10,
+            },
           },
-        });
+        ]);
       });
 
       it('should support days', () => {
         const parsed = parse('+1d');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Increment,
-          values: {
-            [DeltaTimeUnit.Day]: 1,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Increment,
+            values: {
+              [DeltaTimeUnit.Day]: 1,
+            },
           },
-        });
+        ]);
       });
 
-      it('should support weeks', () => {
-        const parsed = parse('+2w');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Increment,
-          values: {
-            [DeltaTimeUnit.Week]: 2,
-          },
+      describe('weeks support', () => {
+        it('available for Increment', () => {
+          const parsed = parse('+2w');
+          expect(parsed).toStrictEqual([
+            {
+              type: AdjustmentType.Increment,
+              values: {
+                [DeltaTimeUnit.Week]: 2,
+              },
+            },
+          ]);
+        });
+
+        it('available for Decrement', () => {
+          const parsed = parse('-2w');
+          expect(parsed).toStrictEqual([
+            {
+              type: AdjustmentType.Decrement,
+              values: {
+                [DeltaTimeUnit.Week]: 2,
+              },
+            },
+          ]);
+        });
+
+        it('available for Set', () => {
+          const parsed = parse('@2w');
+          expect(parsed).toBeNull();
         });
       });
 
       it('should support months', () => {
         const parsed = parse('+3M');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Increment,
-          values: {
-            [DeltaTimeUnit.Month]: 3,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Increment,
+            values: {
+              [DeltaTimeUnit.Month]: 3,
+            },
           },
-        });
+        ]);
       });
 
       it('should support years', () => {
         const parsed = parse('+2y');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Increment,
-          values: {
-            [DeltaTimeUnit.Year]: 2,
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Increment,
+            values: {
+              [DeltaTimeUnit.Year]: 2,
+            },
           },
-        });
+        ]);
       });
 
       it('should not support any other unit', () => {
@@ -117,21 +156,57 @@ describe('timeAdjustment', () => {
         expect(parsed).toBeNull();
       });
 
-      it('should support combination of valid units in ascending order', () => {
-        const parsed = parse('-1h30d2y');
-        expect(parsed).toStrictEqual({
-          type: AdjustmentType.Decrement,
-          values: {
-            [DeltaTimeUnit.Hour]: 1,
-            [DeltaTimeUnit.Day]: 30,
-            [DeltaTimeUnit.Year]: 2,
+      it('should support combination of valid units in descending order for delta adjustments', () => {
+        const parsed = parse('-2y30d1h');
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Decrement,
+            values: {
+              [DeltaTimeUnit.Hour]: 1,
+              [DeltaTimeUnit.Day]: 30,
+              [DeltaTimeUnit.Year]: 2,
+            },
           },
-        });
+        ]);
+      });
+
+      it('should support combination of valid units in ascending order for absolute adjustments', () => {
+        const parsed = parse('@4h1m1s');
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Set,
+            values: {
+              [AbsoluteTimeUnit.Hour]: 4,
+              [AbsoluteTimeUnit.Minute]: 1,
+              [AbsoluteTimeUnit.Second]: 1,
+            },
+          },
+        ]);
       });
 
       it('should not support combination of valid units in an order that is not ascending', () => {
         const parsed = parse('-30d1h2y');
         expect(parsed).toBeNull();
+      });
+    });
+
+    describe('multiple adjustments', () => {
+      it('should support multiple adjustments', () => {
+        const parsed = parse('+1h @10d');
+        expect(parsed).toStrictEqual([
+          {
+            type: AdjustmentType.Increment,
+            values: {
+              [DeltaTimeUnit.Hour]: 1,
+            },
+          },
+          {
+            type: AdjustmentType.Set,
+            values: {
+              [AbsoluteTimeUnit.Day]: 10,
+            },
+          },
+        ]);
       });
     });
   });
@@ -177,6 +252,33 @@ describe('timeAdjustment', () => {
       });
 
       expect(result).toStrictEqual(new Date('2021-02-12T04:01:01.000Z'));
+    });
+
+    it('should apply several adjustments with array of objects', () => {
+      const result = adjust(new Date('2021-02-02T00:00:00.000Z'), [
+        {
+          type: AdjustmentType.Increment,
+          values: {
+            [DeltaTimeUnit.Day]: 2,
+          },
+        },
+        {
+          type: AdjustmentType.Set,
+          values: {
+            [AbsoluteTimeUnit.Hour]: 4,
+            [AbsoluteTimeUnit.Minute]: 1,
+            [AbsoluteTimeUnit.Second]: 1,
+          },
+        },
+      ]);
+
+      expect(result).toStrictEqual(new Date('2021-02-04T04:01:01.000Z'));
+    });
+
+    it('should apply several adjustments with a string', () => {
+      const result = adjust(new Date('2021-02-02T00:00:00.000Z'), '+2d @4h1m1s');
+
+      expect(result).toStrictEqual(new Date('2021-02-04T04:01:01.000Z'));
     });
   });
 });

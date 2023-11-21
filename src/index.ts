@@ -1,22 +1,22 @@
 import { add, addMinutes, set, sub } from 'date-fns';
 
 enum InputDeltaTimeUnit {
-  Second = 's',
-  Minute = 'm',
-  Hour = 'h',
-  Day = 'd',
-  Week = 'w',
-  Month = 'M',
   Year = 'y',
+  Month = 'M',
+  Week = 'w',
+  Day = 'd',
+  Hour = 'h',
+  Minute = 'm',
+  Second = 's',
 }
 
 enum InputAbsoluteTimeUnit {
-  Second = 's',
-  Minute = 'm',
-  Hour = 'h',
-  Date = 'd',
-  Month = 'M',
   Year = 'y',
+  Month = 'M',
+  Date = 'd',
+  Hour = 'h',
+  Minute = 'm',
+  Second = 's',
 }
 
 export enum DeltaTimeUnit {
@@ -178,8 +178,14 @@ const parseSet = (expression: string): SetAdjustment | null => {
   ) as SetAdjustment | null;
 };
 
-export const parse = (expression: string): TimeAdjustment | null => {
-  return parseAdd(expression) || parseSub(expression) || parseSet(expression) || null;
+export const parse = (expression: string): TimeAdjustment[] | null => {
+  const parts = expression.split(' ');
+
+  const result = parts.map((part) => {
+    return parseAdd(part) || parseSub(part) || parseSet(part) || null;
+  });
+
+  return result.some((r) => r === null) ? null : (result as TimeAdjustment[]);
 };
 
 export const adjust = (
