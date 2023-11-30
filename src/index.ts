@@ -1,4 +1,4 @@
-import { add, addMinutes, set, sub } from 'date-fns';
+import { add, set, sub } from 'date-fns';
 
 enum InputDeltaTimeUnit {
   Year = 'y',
@@ -206,10 +206,7 @@ export const adjust = (
 
   switch (type) {
     case AdjustmentType.Set:
-      return values[AbsoluteTimeUnit.Hour]
-        ? addMinutes(set(date, values), -date.getTimezoneOffset())
-        : set(date, values);
-
+      return set(date, values);
     case AdjustmentType.Increment:
       return add(date, values);
     case AdjustmentType.Decrement:

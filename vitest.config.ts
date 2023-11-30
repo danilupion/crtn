@@ -7,5 +7,6 @@ export default defineConfig({
       enabled: true,
     },
     include: ['src/**/*.spec.*'],
+    globalSetup: './test-globals.ts',
   },
 });
